@@ -1,0 +1,30 @@
+// ✅ Version change kiya taaki phone turant update kare
+const CACHE_NAME = 'yourstudy-v3';
+
+const urlsToCache = [
+  './',
+  './index.html',
+  './manifest.json',
+  './study.png'  // ✅ Yahan naam change kar diya hai
+];
+
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function(cache) {
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
+
+self.addEventListener('fetch', function(event) {
+  event.respondWith(
+    caches.match(event.request)
+      .then(function(response) {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
+});
