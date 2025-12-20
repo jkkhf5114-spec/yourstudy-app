@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>YourStudy - Tech By Ashish Sir</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -17,24 +25,16 @@
         input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #555; background: rgba(0,0,0,0.4); color: white; text-align: center; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; color: white; transition: 0.3s; }
         .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); box-shadow: 0 4px 15px rgba(0,210,255,0.3); }
-        
         .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .sub-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
         .sub-icon { font-size: 26px; margin-bottom: 5px; }
         .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-
         .q-number { color: var(--gold); font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
         .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; }
-
         .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; margin-bottom: 20px; border: 2px solid var(--gold); }
         .score-val { font-size: 50px; font-weight: 800; color: var(--gold); margin: 5px 0; }
         .sol-item { background: white; color: #333; padding: 18px; margin-bottom: 15px; border-radius: 15px; }
-
-        #statusCardBox { 
-            position: absolute; left: -9999px; width: 360px; height: 640px; 
-            background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); 
-            padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 8px solid white; box-sizing: border-box;
-        }
+        #statusCardBox { position: absolute; left: -9999px; width: 360px; height: 640px; background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 8px solid white; box-sizing: border-box; }
         .footer-brand { text-align: center; font-size: 10px; color: #aaa; margin-top: 20px; }
     </style>
 </head>
@@ -75,12 +75,7 @@
     </div>
 
     <div id="screen-tests" class="screen"><div id="testListContainer"></div></div>
-
-    <div id="screen-quiz" class="screen">
-        <div id="qCounter"></div>
-        <h4 id="qText" style="margin-top:5px;"></h4>
-        <div id="optionsBox"></div>
-    </div>
+    <div id="screen-quiz" class="screen"><div id="qCounter"></div><h4 id="qText" style="margin-top:5px;"></h4><div id="optionsBox"></div></div>
 
     <div id="screen-result" class="screen">
         <div class="score-card">
@@ -88,10 +83,8 @@
             <div class="score-val" id="finalScore">0/0</div>
             <div style="font-size:11px;">Verified by Tech By Ashish Sir</div>
         </div>
-
         <button class="btn" style="background:#25D366;" onclick="shareOnWhatsApp()">📢 WHATSAPP REPORT</button>
         <button class="btn" style="background:var(--gold); color:#000;" id="downloadBtn" onclick="downloadStatusCard()">📥 DOWNLOAD STATUS PHOTO</button>
-        
         <div id="statusCardBox">
             <div style="font-family:'Cinzel'; color:white; font-size:22px;">SHRI GAYATRI SANSKAAR PUBLIC SCHOOL</div>
             <div>
@@ -105,7 +98,6 @@
                 <div style="color:white; font-size:12px; margin-top:10px;">DESIGNED BY: TECH BY ASHISH SIR</div>
             </div>
         </div>
-
         <button class="btn" onclick="showScreen('screen-dashboard')" style="background:rgba(255,255,255,0.1)">HOME</button>
         <h4 style="margin-top:25px; border-bottom:1px solid var(--primary);">📝 SOLUTION KEY</h4>
         <div id="solutionContainer" style="max-height: 350px; overflow-y: auto;"></div>
@@ -177,45 +169,29 @@
         });
     }
 
-    // UPDATED DOWNLOAD LOGIC FOR STANDALONE MODE
     window.downloadStatusCard = () => {
-        const btn = document.getElementById('downloadBtn'); 
-        btn.innerText = "⏳ Generating...";
-        
+        const btn = document.getElementById('downloadBtn'); btn.innerText = "⏳ Generating...";
         document.getElementById('cardStudentName').innerText = window.player.name.toUpperCase();
         document.getElementById('cardScore').innerText = document.getElementById('finalScore').innerText;
         document.getElementById('cardSubject').innerText = window.currentSubject;
-        
-        const card = document.getElementById('statusCardBox'); 
-        card.style.position = "static"; 
-        card.style.left = "0";
-
+        const card = document.getElementById('statusCardBox'); card.style.position = "static"; card.style.left = "0";
         html2canvas(card, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
             canvas.toBlob((blob) => {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = url;
-                link.download = `Result_${window.player.name}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                link.href = url; link.download = `Result_${window.player.name}.png`;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
                 setTimeout(() => URL.revokeObjectURL(url), 100);
-                
-                card.style.position = "absolute"; 
-                card.style.left = "-9999px";
+                card.style.position = "absolute"; card.style.left = "-9999px";
                 btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
             }, 'image/png');
-        }).catch(err => {
-            console.error(err);
-            btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
-        });
+        }).catch(err => { console.error(err); btn.innerText = "📥 DOWNLOAD STATUS PHOTO"; });
     }
 
     window.shareOnWhatsApp = () => {
         const msg = `*📊 QUIZ RESULT*\n*School:* Shri Gayatri Sanskaar\n*Student:* ${window.player.name}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     }
-
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 </script>
 </body>
