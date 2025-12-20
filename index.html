@@ -18,22 +18,18 @@
         .btn { width: 100%; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; color: white; transition: 0.3s; }
         .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); box-shadow: 0 4px 15px rgba(0,210,255,0.3); }
         
-        /* Dashboard Grid */
         .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .sub-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
         .sub-icon { font-size: 26px; margin-bottom: 5px; }
         .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
 
-        /* Premium Quiz Style */
         .q-number { color: var(--gold); font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
         .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; }
 
-        /* Result & Status Card */
         .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; margin-bottom: 20px; border: 2px solid var(--gold); }
         .score-val { font-size: 50px; font-weight: 800; color: var(--gold); margin: 5px 0; }
         .sol-item { background: white; color: #333; padding: 18px; margin-bottom: 15px; border-radius: 15px; }
 
-        /* Hidden Status Card for Download */
         #statusCardBox { 
             position: absolute; left: -9999px; width: 360px; height: 640px; 
             background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); 
@@ -181,16 +177,36 @@
         });
     }
 
+    // UPDATED DOWNLOAD LOGIC FOR STANDALONE MODE
     window.downloadStatusCard = () => {
-        const btn = document.getElementById('downloadBtn'); btn.innerText = "⏳ Generating...";
+        const btn = document.getElementById('downloadBtn'); 
+        btn.innerText = "⏳ Generating...";
+        
         document.getElementById('cardStudentName').innerText = window.player.name.toUpperCase();
         document.getElementById('cardScore').innerText = document.getElementById('finalScore').innerText;
         document.getElementById('cardSubject').innerText = window.currentSubject;
-        const card = document.getElementById('statusCardBox'); card.style.position = "static"; card.style.left = "0";
-        html2canvas(card, { scale: 2 }).then(canvas => {
-            const link = document.createElement('a'); link.download = `Result_${window.player.name}.png`;
-            link.href = canvas.toDataURL("image/png"); link.click();
-            card.style.position = "absolute"; card.style.left = "-9999px";
+        
+        const card = document.getElementById('statusCardBox'); 
+        card.style.position = "static"; 
+        card.style.left = "0";
+
+        html2canvas(card, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Result_${window.player.name}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+                
+                card.style.position = "absolute"; 
+                card.style.left = "-9999px";
+                btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
+            }, 'image/png');
+        }).catch(err => {
+            console.error(err);
             btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
         });
     }
