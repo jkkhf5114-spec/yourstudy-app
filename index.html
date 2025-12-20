@@ -4,31 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>YourStudy - Tech By Ashish Sir</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" href="study.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #00d2ff; --secondary: #3a7bd5; --bg: #16222A; --text: #fff; --green: #00e676; --red: #ff1744; --gold: #FFD700; }
         body { background: linear-gradient(135deg, #16222A 0%, #3A6073 100%); color: white; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
-        .container { width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; min-height: 100vh; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-        .app-logo { display: block; margin: 0 auto 10px; width: 120px; border-radius: 15px; }
-        .school-name { font-family: 'Cinzel', serif; font-size: 18px; color: var(--gold); text-align: center; }
-        .branding { text-align: center; font-size: 11px; color: var(--green); margin-bottom: 20px; font-weight: bold; }
+        .container { width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; min-height: 100vh; position: relative; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+        .app-logo { display: block; margin: 0 auto 10px; width: 110px; border-radius: 15px; }
+        .school-name { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold); text-align: center; margin-bottom: 5px; }
+        .branding { text-align: center; font-size: 10px; color: var(--green); margin-bottom: 20px; font-weight: bold; }
         .screen { display: none; } .screen.active { display: block; }
-        input, select { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; border: 1px solid #555; background: rgba(0,0,0,0.3); color: white; text-align: center; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; color: white; }
-        .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); }
-        .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #555; background: rgba(0,0,0,0.4); color: white; text-align: center; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; color: white; transition: 0.3s; }
+        .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); box-shadow: 0 4px 15px rgba(0,210,255,0.3); }
+        
+        /* Dashboard Grid */
+        .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .sub-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-        .test-item { background: white; color: #333; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; cursor: pointer; }
-        .opt-btn { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; cursor: pointer; }
-        .score-card { text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 20px; margin-bottom: 20px; }
-        .score-val { font-size: 48px; font-weight: bold; color: var(--gold); }
-        .sol-item { background: white; color: #333; padding: 15px; margin-bottom: 10px; border-radius: 10px; }
-        .sol-item.correct { border-left: 5px solid var(--green); } .sol-item.wrong { border-left: 5px solid var(--red); }
+        .sub-icon { font-size: 26px; margin-bottom: 5px; }
+        .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+
+        /* Premium Quiz Style */
+        .q-number { color: var(--gold); font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; }
+
+        /* Result & Status Card */
+        .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; margin-bottom: 20px; border: 2px solid var(--gold); }
+        .score-val { font-size: 50px; font-weight: 800; color: var(--gold); margin: 5px 0; }
+        .sol-item { background: white; color: #333; padding: 18px; margin-bottom: 15px; border-radius: 15px; }
+
+        /* Hidden Status Card for Download */
+        #statusCardBox { 
+            position: absolute; left: -9999px; width: 360px; height: 640px; 
+            background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); 
+            padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 8px solid white; box-sizing: border-box;
+        }
         .footer-brand { text-align: center; font-size: 10px; color: #aaa; margin-top: 20px; }
     </style>
 </head>
@@ -36,11 +46,11 @@
 <div class="container">
     <img src="study.png" class="app-logo">
     <div class="school-name">SHRI GAYATRI SANSKAAR</div>
-    <div class="branding">✨ Tech By Ashish Sir ✨</div>
+    <div class="branding">DESIGNED BY ASHISH SIR</div>
 
     <div id="screen-login" class="screen active">
         <select id="pClassSelect">
-            <option value="" disabled selected>Select Class</option>
+            <option value="" disabled selected>Select Your Class</option>
             <option value="class5">Class 5th</option>
             <option value="class6">Class 6th</option>
             <option value="class7">Class 7th</option>
@@ -49,45 +59,67 @@
             <option value="class10">Class 10th</option>
             <option value="sainik">Sainik Class</option>
         </select>
-        <input type="text" id="pName" placeholder="Enter Full Name">
-        <input type="text" id="pRoll" placeholder="Enter Roll Number">
-        <button class="btn btn-primary" onclick="handleLogin()">Login Dashboard ➜</button>
+        <input type="text" id="pName" placeholder="Student Full Name">
+        <input type="text" id="pRoll" placeholder="Roll Number">
+        <button class="btn btn-primary" onclick="handleLogin()">ENTER DASHBOARD</button>
     </div>
 
     <div id="screen-dashboard" class="screen">
-        <h3 id="dashName">Hi, Student 👋</h3>
+        <h3 id="dashName" style="text-align:center;">Dashboard</h3>
         <div class="subject-grid">
-            <div class="sub-card" onclick="openSubject('maths', '🔢 Maths')">🔢<br>Maths</div>
-            <div class="sub-card" onclick="openSubject('science', '🔬 Science')">🔬<br>Science</div>
-            <div class="sub-card" onclick="openSubject('gk', '🧠 GK')">🧠<br>GK</div>
-            <div class="sub-card" onclick="openSubject('sst', '🌍 SST')">🌍<br>SST</div>
+            <div class="sub-card" onclick="openSubject('maths', '🔢 Maths')"><div class="sub-icon">🔢</div>Maths</div>
+            <div class="sub-card" onclick="openSubject('science', '🔬 Science')"><div class="sub-icon">🔬</div>Science</div>
+            <div class="sub-card" onclick="openSubject('gk', '🧠 GK')"><div class="sub-icon">🧠</div>GK</div>
+            <div class="sub-card" onclick="openSubject('sst', '🌍 SST')"><div class="sub-icon">🌍</div>SST</div>
+            <div class="sub-card" onclick="openSubject('english', '📚 English')"><div class="sub-icon">📚</div>English</div>
+            <div class="sub-card" onclick="openSubject('hindi', '✍️ Hindi')"><div class="sub-icon">✍️</div>Hindi</div>
+            <div class="sub-card" onclick="openSubject('sanskrit', '🕉️ Sanskrit')"><div class="sub-icon">🕉️</div>Sanskrit</div>
         </div>
-        <button onclick="location.reload()" class="btn" style="background:rgba(255,255,255,0.2)">Logout</button>
+        <button onclick="location.reload()" class="btn" style="background:rgba(255,255,255,0.1)">Logout</button>
     </div>
 
     <div id="screen-tests" class="screen"><div id="testListContainer"></div></div>
 
     <div id="screen-quiz" class="screen">
-        <h4 id="qText">...</h4>
+        <div id="qCounter"></div>
+        <h4 id="qText" style="margin-top:5px;"></h4>
         <div id="optionsBox"></div>
     </div>
 
     <div id="screen-result" class="screen">
         <div class="score-card">
-            <div id="resStudentName">STUDENT</div>
+            <div id="resStudentName" style="font-weight:bold; color:white;">NAME</div>
             <div class="score-val" id="finalScore">0/0</div>
-            <div style="font-size:12px;">Tech By Ashish Sir</div>
+            <div style="font-size:11px;">Verified by Tech By Ashish Sir</div>
         </div>
-        <button class="btn btn-primary" onclick="showScreen('screen-dashboard')">🏠 Home</button>
-        <h4 style="margin-top:20px;">📝 Solution Key</h4>
-        <div id="solutionContainer" style="max-height: 300px; overflow-y: auto;"></div>
+
+        <button class="btn" style="background:#25D366;" onclick="shareOnWhatsApp()">📢 WHATSAPP REPORT</button>
+        <button class="btn" style="background:var(--gold); color:#000;" id="downloadBtn" onclick="downloadStatusCard()">📥 DOWNLOAD STATUS PHOTO</button>
+        
+        <div id="statusCardBox">
+            <div style="font-family:'Cinzel'; color:white; font-size:22px;">SHRI GAYATRI SANSKAAR PUBLIC SCHOOL</div>
+            <div>
+                <p style="color:white; margin:0;">AWESOME PERFORMANCE!</p>
+                <h2 id="cardStudentName" style="color:white; font-size:28px; margin:10px 0;"></h2>
+                <div style="font-size:70px; font-weight:800; color:#FFD700;" id="cardScore"></div>
+                <p id="cardSubject" style="color:white; font-weight:bold; font-size:18px;"></p>
+            </div>
+            <div>
+                <div style="background:white; color:#b21f1f; font-weight:900; padding:10px 30px; border-radius:50px;">ADMISSION OPEN</div>
+                <div style="color:white; font-size:12px; margin-top:10px;">DESIGNED BY: TECH BY ASHISH SIR</div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="showScreen('screen-dashboard')" style="background:rgba(255,255,255,0.1)">HOME</button>
+        <h4 style="margin-top:25px; border-bottom:1px solid var(--primary);">📝 SOLUTION KEY</h4>
+        <div id="solutionContainer" style="max-height: 350px; overflow-y: auto;"></div>
     </div>
     <div class="footer-brand">App Developed by Ashish Sir</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwoI-wBaaKAXpuAKsjbYk3-e4WqPaclD4",
@@ -103,12 +135,9 @@
     window.player = {}; window.currentQuiz = []; window.userAnswers = [];
 
     window.handleLogin = async () => {
-        const cls = document.getElementById('pClassSelect').value;
-        const roll = document.getElementById('pRoll').value;
-        const name = document.getElementById('pName').value;
-        // Device lock & block logic (Stay Same)
-        window.player = { name, roll, class: cls };
-        document.getElementById('dashName').innerText = "Hi, " + name;
+        window.player = { name: document.getElementById('pName').value, roll: document.getElementById('pRoll').value, class: document.getElementById('pClassSelect').value };
+        if(!window.player.name || !window.player.class) return alert("Fill all details");
+        document.getElementById('dashName').innerText = "Hi, " + window.player.name;
         showScreen('screen-dashboard');
     }
 
@@ -116,12 +145,8 @@
         window.currentSubject = title; showScreen('screen-tests');
         const qSnap = await getDocs(collection(db, "quizzes"));
         const cont = document.getElementById('testListContainer');
-        cont.innerHTML = "";
-        qSnap.forEach(doc => {
-            if(doc.data().class === window.player.class && doc.data().subject === subKey) {
-                cont.innerHTML += `<div class="test-item" onclick="startTest('${doc.id}')">${doc.data().title} <span>Start ▶</span></div>`;
-            }
-        });
+        cont.innerHTML = `<h3 style="text-align:center;">${title}</h3>`;
+        qSnap.forEach(d => { if(d.data().class === window.player.class && d.data().subject === subKey) cont.innerHTML += `<div class="test-item" onclick="startTest('${d.id}')">${d.data().title} <span>START ▶</span></div>`; });
     }
 
     window.startTest = async (id) => {
@@ -133,11 +158,12 @@
 
     function loadQ() {
         const q = window.currentQuiz[window.currQIndex];
+        document.getElementById('qCounter').innerHTML = `<span class="q-number">Question ${window.currQIndex+1} / ${window.currentQuiz.length}</span>`;
         document.getElementById('qText').innerText = q.q;
         const box = document.getElementById('optionsBox'); box.innerHTML = "";
         q.opts.forEach((o, i) => {
-            const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
-            b.onclick = () => { window.userAnswers[window.currQIndex] = i; window.currQIndex++; if(window.currQIndex < window.currentQuiz.length) loadQ(); else finish(); };
+            const b = document.createElement('button'); b.className="opt-btn"; b.innerText=o;
+            b.onclick=()=>{window.userAnswers[window.currQIndex]=i; window.currQIndex++; if(window.currQIndex < window.currentQuiz.length) loadQ(); else finish();};
             box.appendChild(b);
         });
     }
@@ -145,20 +171,33 @@
     function finish() {
         let sc = 0;
         window.currentQuiz.forEach((q, i) => { if(window.userAnswers[i] === q.a) sc++; });
-        document.getElementById('finalScore').innerText = sc + "/" + window.currentQuiz.length;
+        document.getElementById('finalScore').innerText = `${sc}/${window.currentQuiz.length}`;
         document.getElementById('resStudentName').innerText = window.player.name.toUpperCase();
         showScreen('screen-result');
         const solCont = document.getElementById('solutionContainer'); solCont.innerHTML = "";
         window.currentQuiz.forEach((q, i) => {
             const isC = window.userAnswers[i] === q.a;
-            solCont.innerHTML += `
-            <div class="sol-item ${isC?'correct':'wrong'}">
-                <b>Q: ${q.q}</b><br>
-                👤 You: ${window.userAnswers[i]!==null?q.opts[window.userAnswers[i]]:'Skipped'}<br>
-                ✅ Correct: ${q.opts[q.a]}<br>
-                <div style="margin-top:5px; color:#1565c0;">💡 Solution: ${q.sol || 'Self-explainable'}</div>
-            </div>`;
+            solCont.innerHTML += `<div class="sol-item" style="border-left:5px solid ${isC?'#00e676':'#ff1744'}"><b>Q${i+1}: ${q.q}</b><br>👤 You: ${window.userAnswers[i]!==null?q.opts[window.userAnswers[i]]:'Skipped'}<br>✅ Correct: ${q.opts[q.a]}<br><div style="margin-top:8px; padding:10px; background:#e3f2fd; color:#333; border-radius:8px;"><b>💡 Solution:</b> ${q.sol || 'Self-explainable'}</div></div>`;
         });
+    }
+
+    window.downloadStatusCard = () => {
+        const btn = document.getElementById('downloadBtn'); btn.innerText = "⏳ Generating...";
+        document.getElementById('cardStudentName').innerText = window.player.name.toUpperCase();
+        document.getElementById('cardScore').innerText = document.getElementById('finalScore').innerText;
+        document.getElementById('cardSubject').innerText = window.currentSubject;
+        const card = document.getElementById('statusCardBox'); card.style.position = "static"; card.style.left = "0";
+        html2canvas(card, { scale: 2 }).then(canvas => {
+            const link = document.createElement('a'); link.download = `Result_${window.player.name}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+            card.style.position = "absolute"; card.style.left = "-9999px";
+            btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
+        });
+    }
+
+    window.shareOnWhatsApp = () => {
+        const msg = `*📊 QUIZ RESULT*\n*School:* Shri Gayatri Sanskaar\n*Student:* ${window.player.name}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     }
 
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
