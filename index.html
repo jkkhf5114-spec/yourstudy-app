@@ -7,6 +7,13 @@
     
     <link rel="manifest" href="manifest.json">
     <script>
+      // Force Logout and Cache Clear for v5 Update
+      if (!localStorage.getItem('app_v5_force_logout')) {
+          localStorage.clear(); 
+          localStorage.setItem('app_v5_force_logout', 'true');
+          location.reload(); 
+      }
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js');
       }
@@ -107,7 +114,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwoI-wBaaKAXpuAKsjbYk3-e4WqPaclD4",
@@ -153,12 +160,20 @@
             const accessSnap = await getDoc(doc(db, "daily_quiz", studentClass));
             if(accessSnap.exists() && accessSnap.data().meta?.allowedIDs?.includes(roll)) {
                 window.player = { name, roll, class: studentClass };
+                
+                // Realtime User Tracking
+                await addDoc(collection(db, "user_logs"), { 
+                    ...window.player, 
+                    time: new Date().toLocaleString(),
+                    device: deviceID
+                });
+
                 document.getElementById('dashName').innerText = "Hi, " + name;
                 showScreen('screen-dashboard');
             } else {
                 alert("❌ Access Denied! Your Roll No is not allowed yet.");
             }
-        } catch (e) { alert("System Error! Check Connection."); }
+        } catch (e) { alert("System Error! Check Rules/Connection."); }
     }
 
     window.openSubject = async (subKey, title) => {

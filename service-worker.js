@@ -1,3 +1,4 @@
+// Updated Version to v5 for Force Update
 const CACHE_NAME = 'yourstudy-v5';
 const urlsToCache = [
   'index.html',
