@@ -107,7 +107,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwoI-wBaaKAXpuAKsjbYk3-e4WqPaclD4",
@@ -122,11 +122,43 @@
     const db = getFirestore(app);
     window.player = {}; window.currentQuiz = []; window.userAnswers = [];
 
+    // 🔒 Updated Security Login with Device Lock
     window.handleLogin = async () => {
-        window.player = { name: document.getElementById('pName').value, roll: document.getElementById('pRoll').value, class: document.getElementById('pClassSelect').value };
-        if(!window.player.name || !window.player.class) return alert("Fill all details");
-        document.getElementById('dashName').innerText = "Hi, " + window.player.name;
-        showScreen('screen-dashboard');
+        const name = document.getElementById('pName').value.trim();
+        const roll = document.getElementById('pRoll').value.trim();
+        const studentClass = document.getElementById('pClassSelect').value;
+
+        if(!name || !roll || !studentClass) return alert("Fill all details");
+
+        try {
+            // Check Blocked Users
+            const blockSnap = await getDoc(doc(db, "settings", "access_control"));
+            if(blockSnap.exists() && blockSnap.data().blocked_users?.includes(roll)) {
+                return alert("⛔ Access Blocked! Contact Admin.");
+            }
+
+            // Check Device Lock
+            const lockSnap = await getDoc(doc(db, "settings", "device_locks"));
+            const deviceID = navigator.userAgent.substring(0, 50);
+            
+            if(lockSnap.exists() && lockSnap.data()[roll]) {
+                if(lockSnap.data()[roll] !== deviceID) {
+                    return alert("⚠️ Device Lock! Already registered on another phone.");
+                }
+            } else {
+                await setDoc(doc(db, "settings", "device_locks"), { [roll]: deviceID }, { merge: true });
+            }
+
+            // Check Access Authorization
+            const accessSnap = await getDoc(doc(db, "daily_quiz", studentClass));
+            if(accessSnap.exists() && accessSnap.data().meta?.allowedIDs?.includes(roll)) {
+                window.player = { name, roll, class: studentClass };
+                document.getElementById('dashName').innerText = "Hi, " + name;
+                showScreen('screen-dashboard');
+            } else {
+                alert("❌ Access Denied! Your Roll No is not allowed yet.");
+            }
+        } catch (e) { alert("System Error! Check Connection."); }
     }
 
     window.openSubject = async (subKey, title) => {
