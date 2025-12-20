@@ -7,15 +7,7 @@
   "theme_color": "#16222A",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "study.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "study.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "study.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "study.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

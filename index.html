@@ -7,12 +7,20 @@
     
     <link rel="manifest" href="manifest.json">
     <script>
-      // Force Logout and Cache Clear for v5 Update
-      if (!localStorage.getItem('app_v5_force_logout')) {
-          localStorage.clear(); 
-          localStorage.setItem('app_v5_force_logout', 'true');
-          location.reload(); 
-      }
+      (function() {
+          const APP_VERSION = 'v6_final_secure';
+          if (localStorage.getItem('app_ver') !== APP_VERSION) {
+              localStorage.clear();
+              sessionStorage.clear();
+              localStorage.setItem('app_ver', APP_VERSION);
+              if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(regs => {
+                      for(let reg of regs) reg.unregister();
+                  });
+              }
+              location.reload(true);
+          }
+      })();
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js');
@@ -129,7 +137,6 @@
     const db = getFirestore(app);
     window.player = {}; window.currentQuiz = []; window.userAnswers = [];
 
-    // 🔒 Updated Security Login with Device Lock
     window.handleLogin = async () => {
         const name = document.getElementById('pName').value.trim();
         const roll = document.getElementById('pRoll').value.trim();
@@ -138,13 +145,11 @@
         if(!name || !roll || !studentClass) return alert("Fill all details");
 
         try {
-            // Check Blocked Users
             const blockSnap = await getDoc(doc(db, "settings", "access_control"));
             if(blockSnap.exists() && blockSnap.data().blocked_users?.includes(roll)) {
                 return alert("⛔ Access Blocked! Contact Admin.");
             }
 
-            // Check Device Lock
             const lockSnap = await getDoc(doc(db, "settings", "device_locks"));
             const deviceID = navigator.userAgent.substring(0, 50);
             
@@ -156,22 +161,18 @@
                 await setDoc(doc(db, "settings", "device_locks"), { [roll]: deviceID }, { merge: true });
             }
 
-            // Check Access Authorization
             const accessSnap = await getDoc(doc(db, "daily_quiz", studentClass));
             if(accessSnap.exists() && accessSnap.data().meta?.allowedIDs?.includes(roll)) {
                 window.player = { name, roll, class: studentClass };
-                
-                // Realtime User Tracking
                 await addDoc(collection(db, "user_logs"), { 
                     ...window.player, 
                     time: new Date().toLocaleString(),
                     device: deviceID
                 });
-
                 document.getElementById('dashName').innerText = "Hi, " + name;
                 showScreen('screen-dashboard');
             } else {
-                alert("❌ Access Denied! Your Roll No is not allowed yet.");
+                alert("❌ Access Denied! Contact Ashish Sir to allow your Roll Number.");
             }
         } catch (e) { alert("System Error! Check Rules/Connection."); }
     }
