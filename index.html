@@ -188,6 +188,7 @@
     window.startTest = async (id) => {
         const s = await getDoc(doc(db, "quizzes", id));
         window.currentQuiz = s.data().questions;
+        window.currentTestTitle = s.data().title; // Naya: Test Topic save kiya
         window.userAnswers = new Array(window.currentQuiz.length).fill(null);
         window.currQIndex = 0; showScreen('screen-quiz'); loadQ();
     }
@@ -237,7 +238,10 @@
     }
 
     window.shareOnWhatsApp = () => {
-        const msg = `*📊 QUIZ RESULT*\n*School:* Shri Gayatri Sanskaar\n*Student:* ${window.player.name}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
+        // Naya logic: Subject aur Topic (Test Title) add kiya gaya
+        const subject = window.currentSubject || "N/A";
+        const topic = window.currentTestTitle || "General Test";
+        const msg = `*📊 QUIZ RESULT*\n*School:* Shri Gayatri Sanskaar\n*Student:* ${window.player.name}\n*Subject:* ${subject}\n*Topic:* ${topic}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     }
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
