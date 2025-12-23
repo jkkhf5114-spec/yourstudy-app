@@ -8,7 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <script>
       (function() {
-          const APP_VERSION = 'v6_final_secure';
+          const APP_VERSION = 'v10_final_sync';
           if (localStorage.getItem('app_ver') !== APP_VERSION) {
               localStorage.clear();
               sessionStorage.clear();
@@ -21,10 +21,7 @@
               location.reload(true);
           }
       })();
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js');
-      }
+      if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js'); }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -44,13 +41,17 @@
         .sub-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
         .sub-icon { font-size: 26px; margin-bottom: 5px; }
         .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-        .q-number { color: var(--gold); font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; display: block; }
         .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; }
         .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; margin-bottom: 20px; border: 2px solid var(--gold); }
         .score-val { font-size: 50px; font-weight: 800; color: var(--gold); margin: 5px 0; }
         .sol-item { background: white; color: #333; padding: 18px; margin-bottom: 15px; border-radius: 15px; }
         #statusCardBox { position: absolute; left: -9999px; width: 360px; height: 640px; background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 8px solid white; box-sizing: border-box; }
         .footer-brand { text-align: center; font-size: 10px; color: #aaa; margin-top: 20px; }
+
+        /* Naye Features ke Styles */
+        .fact-box { margin-top: 15px; background: rgba(255,255,255,0.15); padding: 12px; border-radius: 12px; border-left: 4px solid var(--gold); font-size: 13px; text-align: left; display: none; }
+        .sub-offer-card { margin-top: 20px; background: linear-gradient(45deg, #FFD700, #FFA500); padding: 15px; border-radius: 15px; color: #000; text-align: center; border: 2px solid #fff; display: none; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
     </style>
 </head>
 <body>
@@ -73,6 +74,16 @@
         <input type="text" id="pName" placeholder="Student Full Name">
         <input type="text" id="pRoll" placeholder="Roll Number">
         <button class="btn btn-primary" onclick="handleLogin()">ENTER DASHBOARD</button>
+
+        <div id="factBox" class="fact-box">
+            <b style="color:var(--gold);">🌟 DAILY FACT:</b><br><span id="factText">Loading...</span>
+        </div>
+
+        <div id="subOfferBox" class="sub-offer-card">
+            <div style="font-weight: bold; font-size: 12px; text-transform: uppercase;">💎 Special Yearly Plan</div>
+            <div id="subPriceDisplay" style="font-size: 24px; font-weight: 900; margin: 5px 0;">₹---</div>
+            <a href="tel:8517935114" style="background:black; color:white; padding:8px 20px; border-radius:20px; text-decoration:none; display:inline-block; margin-top:10px; font-weight:bold; font-size:12px;">📞 BUY NOW: 8517935114</a>
+        </div>
     </div>
 
     <div id="screen-dashboard" class="screen">
@@ -117,7 +128,7 @@
         <h4 style="margin-top:25px; border-bottom:1px solid var(--primary);">📝 SOLUTION KEY</h4>
         <div id="solutionContainer" style="max-height: 350px; overflow-y: auto;"></div>
     </div>
-    <div class="footer-brand">App Developed by Ashish Sir</div>
+    <div class="footer-brand">App Developed by Ashish Sir | 8517935114</div>
 </div>
 
 <script type="module">
@@ -137,44 +148,47 @@
     const db = getFirestore(app);
     window.player = {}; window.currentQuiz = []; window.userAnswers = [];
 
+    // --- Subscription & Fact Load ---
+    async function loadInitialData() {
+        try {
+            const subSnap = await getDoc(doc(db, "settings", "subscription"));
+            if(subSnap.exists()) {
+                document.getElementById('subPriceDisplay').innerText = subSnap.data().price;
+                document.getElementById('subOfferBox').style.display = "block";
+            }
+            const factSnap = await getDoc(doc(db, "settings", "daily_fact"));
+            if(factSnap.exists()) {
+                document.getElementById('factText').innerText = factSnap.data().text;
+                document.getElementById('factBox').style.display = "block";
+            }
+        } catch(e) { console.log(e); }
+    }
+    window.onload = loadInitialData;
+
     window.handleLogin = async () => {
         const name = document.getElementById('pName').value.trim();
         const roll = document.getElementById('pRoll').value.trim();
         const studentClass = document.getElementById('pClassSelect').value;
-
         if(!name || !roll || !studentClass) return alert("Fill all details");
-
         try {
             const blockSnap = await getDoc(doc(db, "settings", "access_control"));
-            if(blockSnap.exists() && blockSnap.data().blocked_users?.includes(roll)) {
-                return alert("⛔ Access Blocked! Contact Admin.");
-            }
-
+            if(blockSnap.exists() && blockSnap.data().blocked_users?.includes(roll)) return alert("⛔ Access Blocked!");
             const lockSnap = await getDoc(doc(db, "settings", "device_locks"));
             const deviceID = navigator.userAgent.substring(0, 50);
-            
             if(lockSnap.exists() && lockSnap.data()[roll]) {
-                if(lockSnap.data()[roll] !== deviceID) {
-                    return alert("⚠️ Device Lock! Already registered on another phone.");
-                }
+                if(lockSnap.data()[roll] !== deviceID) return alert("⚠️ Device Locked!");
             } else {
                 await setDoc(doc(db, "settings", "device_locks"), { [roll]: deviceID }, { merge: true });
             }
-
             const accessSnap = await getDoc(doc(db, "daily_quiz", studentClass));
             if(accessSnap.exists() && accessSnap.data().meta?.allowedIDs?.includes(roll)) {
                 window.player = { name, roll, class: studentClass };
-                await addDoc(collection(db, "user_logs"), { 
-                    ...window.player, 
-                    time: new Date().toLocaleString(),
-                    device: deviceID
-                });
+                // Report to Live Counter
+                await setDoc(doc(db, "status", roll), { name, online: true, time: Date.now() }, { merge: true });
                 document.getElementById('dashName').innerText = "Hi, " + name;
                 showScreen('screen-dashboard');
-            } else {
-                alert("❌ Access Denied! Contact Ashish Sir to allow your Roll Number.");
-            }
-        } catch (e) { alert("System Error! Check Rules/Connection."); }
+            } else { alert("❌ Access Denied!"); }
+        } catch (e) { alert("System Error!"); }
     }
 
     window.openSubject = async (subKey, title) => {
@@ -182,13 +196,19 @@
         const qSnap = await getDocs(collection(db, "quizzes"));
         const cont = document.getElementById('testListContainer');
         cont.innerHTML = `<h3 style="text-align:center;">${title}</h3>`;
-        qSnap.forEach(d => { if(d.data().class === window.player.class && d.data().subject === subKey) cont.innerHTML += `<div class="test-item" onclick="startTest('${d.id}')">${d.data().title} <span>START ▶</span></div>`; });
+        let count = 1; // Numbering Start
+        qSnap.forEach(d => { 
+            if(d.data().class === window.player.class && d.data().subject === subKey) {
+                cont.innerHTML += `<div class="test-item" onclick="startTest('${d.id}')">${count}. ${d.data().title} <span>START ▶</span></div>`;
+                count++;
+            }
+        });
     }
 
     window.startTest = async (id) => {
         const s = await getDoc(doc(db, "quizzes", id));
         window.currentQuiz = s.data().questions;
-        window.currentTestTitle = s.data().title; // Naya: Test Topic save kiya
+        window.currentTestTitle = s.data().title;
         window.userAnswers = new Array(window.currentQuiz.length).fill(null);
         window.currQIndex = 0; showScreen('screen-quiz'); loadQ();
     }
@@ -214,34 +234,29 @@
         const solCont = document.getElementById('solutionContainer'); solCont.innerHTML = "";
         window.currentQuiz.forEach((q, i) => {
             const isC = window.userAnswers[i] === q.a;
-            solCont.innerHTML += `<div class="sol-item" style="border-left:5px solid ${isC?'#00e676':'#ff1744'}"><b>Q${i+1}: ${q.q}</b><br>👤 You: ${window.userAnswers[i]!==null?q.opts[window.userAnswers[i]]:'Skipped'}<br>✅ Correct: ${q.opts[q.a]}<br><div style="margin-top:8px; padding:10px; background:#e3f2fd; color:#333; border-radius:8px;"><b>💡 Solution:</b> ${q.sol || 'Self-explainable'}</div></div>`;
+            solCont.innerHTML += `<div class="sol-item" style="border-left:5px solid ${isC?'#00e676':'#ff1744'}">
+                <b>Q${i+1}: ${q.q}</b><br>
+                <span style="color:${isC?'#00e676':'#ff1744'}">👤 Your: ${window.userAnswers[i]!==null?q.opts[window.userAnswers[i]]:'Skipped'}</span><br>
+                <span style="color:#00e676">✅ Correct: ${q.opts[q.a]}</span><br>
+                <div style="margin-top:8px; padding:10px; background:#e3f2fd; color:#333; border-radius:8px;"><b>💡 Solution:</b> ${q.sol || 'Self-explainable'}</div>
+            </div>`;
         });
     }
 
     window.downloadStatusCard = () => {
-        const btn = document.getElementById('downloadBtn'); btn.innerText = "⏳ Generating...";
         document.getElementById('cardStudentName').innerText = window.player.name.toUpperCase();
         document.getElementById('cardScore').innerText = document.getElementById('finalScore').innerText;
         document.getElementById('cardSubject').innerText = window.currentSubject;
         const card = document.getElementById('statusCardBox'); card.style.position = "static"; card.style.left = "0";
-        html2canvas(card, { scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url; link.download = `Result_${window.player.name}.png`;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                setTimeout(() => URL.revokeObjectURL(url), 100);
-                card.style.position = "absolute"; card.style.left = "-9999px";
-                btn.innerText = "📥 DOWNLOAD STATUS PHOTO";
-            }, 'image/png');
-        }).catch(err => { console.error(err); btn.innerText = "📥 DOWNLOAD STATUS PHOTO"; });
+        html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL(); link.download = `Result.png`;
+            link.click(); card.style.position = "absolute"; card.style.left = "-9999px";
+        });
     }
 
     window.shareOnWhatsApp = () => {
-        // Naya logic: Subject aur Topic (Test Title) add kiya gaya
-        const subject = window.currentSubject || "N/A";
-        const topic = window.currentTestTitle || "General Test";
-        const msg = `*📊 QUIZ RESULT*\n*School:* Shri Gayatri Sanskaar\n*Student:* ${window.player.name}\n*Subject:* ${subject}\n*Topic:* ${topic}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
+        const msg = `*📊 QUIZ RESULT*\n*Student:* ${window.player.name}\n*Subject:* ${window.currentSubject}\n*Topic:* ${window.currentTestTitle}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     }
     window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
