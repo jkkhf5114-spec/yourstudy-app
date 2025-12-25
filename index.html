@@ -3,137 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YourStudy - Tech By Ashish Sir</title>
+    <title>YourStudy Pro - Tech By Ashish Sir</title>
     
-    <link rel="manifest" href="manifest.json">
-    <script>
-      (function() {
-          const APP_VERSION = 'v10_final_sync';
-          if (localStorage.getItem('app_ver') !== APP_VERSION) {
-              localStorage.clear();
-              sessionStorage.clear();
-              localStorage.setItem('app_ver', APP_VERSION);
-              if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.getRegistrations().then(regs => {
-                      for(let reg of regs) reg.unregister();
-                  });
-              }
-              location.reload(true);
-          }
-      })();
-      if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js'); }
-    </script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #00d2ff; --secondary: #3a7bd5; --bg: #16222A; --text: #fff; --green: #00e676; --red: #ff1744; --gold: #FFD700; }
-        body { background: linear-gradient(135deg, #16222A 0%, #3A6073 100%); color: white; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
+        body { background: linear-gradient(135deg, #16222A 0%, #3A6073 100%); color: white; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         .container { width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; min-height: 100vh; position: relative; border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
-        .app-logo { display: block; margin: 0 auto 10px; width: 110px; border-radius: 15px; }
+        .app-logo { display: block; margin: 0 auto 10px; width: 90px; border-radius: 15px; box-shadow: 0 0 15px var(--primary); }
         .school-name { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold); text-align: center; margin-bottom: 5px; }
-        .branding { text-align: center; font-size: 10px; color: var(--green); margin-bottom: 20px; font-weight: bold; }
-        .screen { display: none; } .screen.active { display: block; }
+        .screen { display: none; } .screen.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1; transform: translateY(0);} }
+
         input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #555; background: rgba(0,0,0,0.4); color: white; text-align: center; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; color: white; transition: 0.3s; }
-        .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); box-shadow: 0 4px 15px rgba(0,210,255,0.3); }
+        .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); }
+        .btn-battle { background: linear-gradient(45deg, #f43f5e, #fb7185); border-bottom: 4px solid #9f1239; margin-bottom: 15px; }
+
         .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
         .sub-card { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-        .sub-icon { font-size: 26px; margin-bottom: 5px; }
-        .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-        .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; }
-        .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; margin-bottom: 20px; border: 2px solid var(--gold); }
-        .score-val { font-size: 50px; font-weight: 800; color: var(--gold); margin: 5px 0; }
-        .sol-item { background: white; color: #333; padding: 18px; margin-bottom: 15px; border-radius: 15px; }
-        #statusCardBox { position: absolute; left: -9999px; width: 360px; height: 640px; background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 8px solid white; box-sizing: border-box; }
-        .footer-brand { text-align: center; font-size: 10px; color: #aaa; margin-top: 20px; }
+        .test-item { background: white; color: #333; padding: 15px; margin-bottom: 12px; border-radius: 12px; border-left: 6px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; font-weight: 600; cursor: pointer; }
+        
+        .opt-btn { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; background: white; color: #333; text-align: left; padding-left: 20px; font-weight: 600; cursor: pointer; }
+        .lifeline-row { display: flex; justify-content: space-around; margin: 10px 0; }
+        .lifeline-btn { background: #1e293b; border: 2px solid var(--gold); color: var(--gold); border-radius: 50px; padding: 8px 15px; font-size: 11px; font-weight: bold; }
+        .lifeline-btn.used { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
 
-        /* Naye Features ke Styles */
-        .fact-box { margin-top: 15px; background: rgba(255,255,255,0.15); padding: 12px; border-radius: 12px; border-left: 4px solid var(--gold); font-size: 13px; text-align: left; display: none; }
-        .sub-offer-card { margin-top: 20px; background: linear-gradient(45deg, #FFD700, #FFA500); padding: 15px; border-radius: 15px; color: #000; text-align: center; border: 2px solid #fff; display: none; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
+        .back-nav { background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 15px; border-radius: 10px; font-size: 12px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 5px; width: fit-content; }
+        .free-quiz-box { border: 2px dashed var(--gold); border-radius: 15px; padding: 15px; margin-top: 20px; text-align: center; background: rgba(255,215,0,0.05); }
+
+        .premium-sol-card { background: #fff; color: #333; padding: 15px; margin-bottom: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); position: relative; }
+        .sol-q-no { background: var(--secondary); color: white; padding: 2px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; margin-bottom: 8px; display: inline-block; }
+        .sol-text { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; line-height: 1.4; }
+        .ans-badge { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 13px; font-weight: 600; }
+        .user-choice { background: #fce4ec; border: 1px solid #f06292; color: #c2185b; }
+        .correct-choice { background: #e8f5e9; border: 1px solid #66bb6a; color: #2e7d32; }
+        .explanation-box { background: #e3f2fd; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--primary); font-size: 12px; color: #444; }
+
+        /* UPDATED CERTIFICATE DESIGN */
+        #statusCardBox { position: absolute; left: -9999px; width: 400px; height: 600px; background: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 30px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 10px solid gold; box-sizing: border-box; }
+        .score-card { text-align: center; padding: 25px; background: rgba(0,0,0,0.4); border-radius: 25px; border: 2px solid var(--gold); margin-bottom: 20px; }
     </style>
 </head>
 <body>
 <div class="container">
     <img src="study.png" class="app-logo">
     <div class="school-name">SHRI GAYATRI SANSKAAR</div>
-    <div class="branding">DESIGNED BY ASHISH SIR</div>
 
     <div id="screen-login" class="screen active">
         <select id="pClassSelect">
             <option value="" disabled selected>Select Your Class</option>
-            <option value="class5">Class 5th</option>
-            <option value="class6">Class 6th</option>
-            <option value="class7">Class 7th</option>
-            <option value="class8">Class 8th</option>
-            <option value="class9">Class 9th</option>
-            <option value="class10">Class 10th</option>
+            <option value="class5">Class 5th</option><option value="class6">Class 6th</option>
+            <option value="class7">Class 7th</option><option value="class8">Class 8th</option>
+            <option value="class9">Class 9th</option><option value="class10">Class 10th</option>
             <option value="sainik">Sainik Class</option>
         </select>
         <input type="text" id="pName" placeholder="Student Full Name">
         <input type="text" id="pRoll" placeholder="Roll Number">
+        <input type="text" id="pDistrict" placeholder="Enter Your District">
         <button class="btn btn-primary" onclick="handleLogin()">ENTER DASHBOARD</button>
 
-        <div id="factBox" class="fact-box">
-            <b style="color:var(--gold);">🌟 DAILY FACT:</b><br><span id="factText">Loading...</span>
-        </div>
-
-        <div id="subOfferBox" class="sub-offer-card">
-            <div style="font-weight: bold; font-size: 12px; text-transform: uppercase;">💎 Special Yearly Plan</div>
-            <div id="subPriceDisplay" style="font-size: 24px; font-weight: 900; margin: 5px 0;">₹---</div>
-            <a href="tel:8517935114" style="background:black; color:white; padding:8px 20px; border-radius:20px; text-decoration:none; display:inline-block; margin-top:10px; font-weight:bold; font-size:12px;">📞 BUY NOW: 8517935114</a>
+        <div class="free-quiz-box">
+            <p style="margin:0; color:var(--gold); font-weight:bold;">✨ GUEST ZONE</p>
+            <small>Free Quiz & Battle ke liye niche details bhariye!</small>
+            <input type="text" id="freeName" placeholder="Aapka Naam">
+            <input type="number" id="freeMobile" placeholder="Mobile Number">
+            <button class="btn" style="background:var(--gold); color:#000; padding:10px; font-size:13px;" onclick="openFreeSubject()">PLAY FREE ZONE 🚀</button>
         </div>
     </div>
 
     <div id="screen-dashboard" class="screen">
-        <h3 id="dashName" style="text-align:center;">Dashboard</h3>
+        <button class="back-nav" onclick="location.reload()">⬅ Logout</button>
+        <h3 id="dashName" style="text-align:center; margin:0;">Dashboard</h3>
+        <p id="dashDist" style="text-align:center; color:var(--gold); font-size:12px;"></p>
+        <button class="btn btn-battle" onclick="showScreen('screen-battle-lobby')">⚔️ 1 VS 1 LIVE BATTLE</button>
         <div class="subject-grid">
-            <div class="sub-card" onclick="openSubject('maths', '🔢 Maths')"><div class="sub-icon">🔢</div>Maths</div>
-            <div class="sub-card" onclick="openSubject('science', '🔬 Science')"><div class="sub-icon">🔬</div>Science</div>
-            <div class="sub-card" onclick="openSubject('gk', '🧠 GK')"><div class="sub-icon">🧠</div>GK</div>
-            <div class="sub-card" onclick="openSubject('sst', '🌍 SST')"><div class="sub-icon">🌍</div>SST</div>
-            <div class="sub-card" onclick="openSubject('english', '📚 English')"><div class="sub-icon">📚</div>English</div>
-            <div class="sub-card" onclick="openSubject('hindi', '✍️ Hindi')"><div class="sub-icon">✍️</div>Hindi</div>
-            <div class="sub-card" onclick="openSubject('sanskrit', '🕉️ Sanskrit')"><div class="sub-icon">🕉️</div>Sanskrit</div>
+            <div class="sub-card" onclick="openSubject('hindi', '✍️ Hindi')">✍️<br>Hindi</div>
+            <div class="sub-card" onclick="openSubject('english', '📚 English')">📚<br>English</div>
+            <div class="sub-card" onclick="openSubject('maths', '🔢 Maths')">🔢<br>Maths</div>
+            <div class="sub-card" onclick="openSubject('science', '🔬 Science')">🔬<br>Science</div>
+            <div class="sub-card" onclick="openSubject('sst', '🌍 SST')">🌍<br>SST</div>
+            <div class="sub-card" onclick="openSubject('gk', '🧠 GK')">🧠<br>GK</div>
+            <div class="sub-card" onclick="openSubject('sanskrit', '🕉️ Sanskrit')">🕉️<br>Sanskrit</div>
         </div>
-        <button onclick="location.reload()" class="btn" style="background:rgba(255,255,255,0.1)">Logout</button>
     </div>
 
-    <div id="screen-tests" class="screen"><div id="testListContainer"></div></div>
-    <div id="screen-quiz" class="screen"><div id="qCounter"></div><h4 id="qText" style="margin-top:5px;"></h4><div id="optionsBox"></div></div>
+    <div id="screen-battle-lobby" class="screen">
+        <button class="back-nav" id="backFromBattleLobby" onclick="showScreen('screen-dashboard')">⬅ Back</button>
+        <h3 style="text-align:center;">⚔️ BATTLE ROOM</h3>
+        <div class="glass-card" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:20px; text-align:center;">
+            <p>Battle ID se Join Karein</p>
+            <input type="number" id="battleJoinInput" placeholder="Enter Number ID (e.g. 5114)">
+            <button class="btn btn-primary" onclick="joinBattle()">JOIN BATTLE 🚀</button>
+        </div>
+        <hr>
+        <p style="text-align:center; font-size:12px;">YAA APNI BATTLE BANAYEIN</p>
+        <button class="btn" id="battleCreationRedirect" style="background:var(--gold); color:black;" onclick="showScreen('screen-dashboard')">SELECT SUBJECT FOR BATTLE</button>
+    </div>
+
+    <div id="screen-tests" class="screen">
+        <button class="back-nav" id="backFromTests" onclick="showScreen('screen-dashboard')">⬅ Back</button>
+        <div id="testListContainer"></div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <button class="back-nav" onclick="if(confirm('Quiz band karein?')) location.reload()">⬅ Quit Quiz</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div id="qCounter" style="font-weight:bold;"></div>
+            <div id="livesBox" style="color:var(--red);">❤️❤️❤️</div>
+        </div>
+        <div class="lifeline-row">
+            <button class="lifeline-btn" id="ll-50" onclick="use5050()">50:50 KBC</button>
+            <button class="lifeline-btn" onclick="alert('Hint: Check Notes!')">HINT 💡</button>
+        </div>
+        <img id="qImage" style="width:100%; border-radius:15px; display:none; margin-bottom: 10px; border: 2px solid white;">
+        <h4 id="qText" style="margin-top:0;"></h4>
+        <div id="optionsBox"></div>
+    </div>
 
     <div id="screen-result" class="screen">
         <div class="score-card">
-            <div id="resStudentName" style="font-weight:bold; color:white;">NAME</div>
-            <div class="score-val" id="finalScore">0/0</div>
-            <div style="font-size:11px;">Verified by Tech By Ashish Sir</div>
+            <h2 id="finalScore" style="font-size:45px; color:var(--gold); margin:10px 0;">0/0</h2>
+            <div id="resBattleInfo" style="color:var(--primary); font-weight:bold; margin-bottom:10px;"></div>
+            <div id="resStudentName">NAME</div>
         </div>
         <button class="btn" style="background:#25D366;" onclick="shareOnWhatsApp()">📢 WHATSAPP REPORT</button>
-        <button class="btn" style="background:var(--gold); color:#000;" id="downloadBtn" onclick="downloadStatusCard()">📥 DOWNLOAD STATUS PHOTO</button>
+        <button class="btn" style="background:var(--gold); color:#000;" onclick="downloadStatusCard()">📥 DOWNLOAD CERTIFICATE</button>
+        
         <div id="statusCardBox">
-            <div style="font-family:'Cinzel'; color:white; font-size:22px;">SHRI GAYATRI SANSKAAR PUBLIC SCHOOL</div>
-            <div>
-                <p style="color:white; margin:0;">AWESOME PERFORMANCE!</p>
-                <h2 id="cardStudentName" style="color:white; font-size:28px; margin:10px 0;"></h2>
-                <div style="font-size:70px; font-weight:800; color:#FFD700;" id="cardScore"></div>
-                <p id="cardSubject" style="color:white; font-weight:bold; font-size:18px;"></p>
+            <div style="font-family:'Cinzel'; color:gold; font-size:24px; font-weight:bold;">SHRI GAYATRI SANSKAAR PUBLIC SCHOOL</div>
+            <div style="color:white; margin: 20px 0;">
+                <p style="font-size: 16px; margin:0;">CONGRATULATIONS!</p>
+                <h2 id="cardStudentName" style="color:white; font-size:32px; margin:10px 0; text-decoration: underline;"></h2>
+                <div style="font-size:60px; font-weight:800; color:#FFD700; margin:10px 0;" id="cardScore"></div>
+                <p id="cardChapter" style="color:white; font-weight:600; font-size:16px; margin:5px 0;"></p>
+                <p id="cardSubject" style="color:white; font-weight:bold; font-size:18px; margin:0;"></p>
             </div>
-            <div>
-                <div style="background:white; color:#b21f1f; font-weight:900; padding:10px 30px; border-radius:50px;">ADMISSION OPEN</div>
-                <div style="color:white; font-size:12px; margin-top:10px;">DESIGNED BY: TECH BY ASHISH SIR</div>
+            <div style="width:100%;">
+                <div style="background:white; color:#b21f1f; font-weight:900; padding:10px; border-radius:50px; font-size:20px; margin-bottom:10px;">ADMISSION OPEN</div>
+                <div style="color:white; font-size:14px; font-weight:bold; letter-spacing: 1px;">BRAND: TECH BY ASHISH</div>
             </div>
         </div>
-        <button class="btn" onclick="showScreen('screen-dashboard')" style="background:rgba(255,255,255,0.1)">HOME</button>
-        <h4 style="margin-top:25px; border-bottom:1px solid var(--primary);">📝 SOLUTION KEY</h4>
-        <div id="solutionContainer" style="max-height: 350px; overflow-y: auto;"></div>
+
+        <button class="btn" onclick="location.reload()" style="background:rgba(255,255,255,0.1)">HOME</button>
+        <h3 style="margin-top:25px; border-left:5px solid var(--primary); padding-left:10px;">📝 Solution Key</h3>
+        <div id="solutionContainer" style="margin-top:15px;"></div>
     </div>
-    <div class="footer-brand">App Developed by Ashish Sir | 8517935114</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCwoI-wBaaKAXpuAKsjbYk3-e4WqPaclD4",
@@ -146,120 +167,215 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    window.player = {}; window.currentQuiz = []; window.userAnswers = [];
 
-    // --- Subscription & Fact Load ---
-    async function loadInitialData() {
-        try {
-            const subSnap = await getDoc(doc(db, "settings", "subscription"));
-            if(subSnap.exists()) {
-                document.getElementById('subPriceDisplay').innerText = subSnap.data().price;
-                document.getElementById('subOfferBox').style.display = "block";
-            }
-            const factSnap = await getDoc(doc(db, "settings", "daily_fact"));
-            if(factSnap.exists()) {
-                document.getElementById('factText').innerText = factSnap.data().text;
-                document.getElementById('factBox').style.display = "block";
-            }
-        } catch(e) { console.log(e); }
-    }
-    window.onload = loadInitialData;
+    window.player = {}; window.currentQuiz = []; window.currQIndex = 0;
+    window.lives = 3; window.userAnswers = []; window.isBattle = false; window.battleID = null;
 
     window.handleLogin = async () => {
         const name = document.getElementById('pName').value.trim();
         const roll = document.getElementById('pRoll').value.trim();
-        const studentClass = document.getElementById('pClassSelect').value;
-        if(!name || !roll || !studentClass) return alert("Fill all details");
+        const dist = document.getElementById('pDistrict').value.trim();
+        const cls = document.getElementById('pClassSelect').value;
+        if(!name || !roll || !cls || !dist) return alert("Sari fields bhariye!");
         try {
-            const blockSnap = await getDoc(doc(db, "settings", "access_control"));
-            if(blockSnap.exists() && blockSnap.data().blocked_users?.includes(roll)) return alert("⛔ Access Blocked!");
-            const lockSnap = await getDoc(doc(db, "settings", "device_locks"));
             const deviceID = navigator.userAgent.substring(0, 50);
-            if(lockSnap.exists() && lockSnap.data()[roll]) {
-                if(lockSnap.data()[roll] !== deviceID) return alert("⚠️ Device Locked!");
-            } else {
-                await setDoc(doc(db, "settings", "device_locks"), { [roll]: deviceID }, { merge: true });
+            const lockRef = doc(db, "settings", "device_locks");
+            const lockSnap = await getDoc(lockRef);
+            if(lockSnap.exists() && lockSnap.data()[roll] && lockSnap.data()[roll] !== deviceID) {
+                return alert("⚠️ Device Locked!");
             }
-            const accessSnap = await getDoc(doc(db, "daily_quiz", studentClass));
+            await setDoc(lockRef, { [roll]: deviceID }, { merge: true });
+            const accessSnap = await getDoc(doc(db, "daily_quiz", cls));
             if(accessSnap.exists() && accessSnap.data().meta?.allowedIDs?.includes(roll)) {
-                window.player = { name, roll, class: studentClass };
-                // Report to Live Counter
-                await setDoc(doc(db, "status", roll), { name, online: true, time: Date.now() }, { merge: true });
-                document.getElementById('dashName').innerText = "Hi, " + name;
+                window.player = { name, roll, class: cls, district: dist };
+                document.getElementById('dashName').innerText = "Hero, " + name;
+                document.getElementById('dashDist').innerText = "📍 " + dist;
                 showScreen('screen-dashboard');
-            } else { alert("❌ Access Denied!"); }
+            } else { 
+                alert("❌ Access Denied! contact by Ashish sir 8517935114"); 
+            }
         } catch (e) { alert("System Error!"); }
+    };
+
+    window.openFreeSubject = async () => {
+        const fName = document.getElementById('freeName').value.trim();
+        const fMob = document.getElementById('freeMobile').value.trim();
+        if(!fName || !fMob) return alert("Guest Play ke liye Naam aur Mobile bhariye!");
+        window.player = { name: fName, roll: fMob, class: "free", district: "Guest Zone" };
+        window.currentSubject = "Free Zone";
+        document.getElementById('backFromTests').setAttribute('onclick', "location.reload()");
+        document.getElementById('backFromBattleLobby').setAttribute('onclick', "location.reload()");
+        document.getElementById('battleCreationRedirect').setAttribute('onclick', "showScreen('screen-tests')");
+        showScreen('screen-tests');
+        const qSnap = await getDocs(collection(db, "quizzes"));
+        const cont = document.getElementById('testListContainer');
+        cont.innerHTML = `<h3 style="text-align:center;">✨ Free Play & Battle Quizzes</h3>
+                         <button class="btn btn-battle" onclick="showScreen('screen-battle-lobby')">⚔️ JOIN GUEST BATTLE ROOM</button>`;
+        qSnap.forEach(d => {
+            if(d.data().class === "free") {
+                cont.innerHTML += `<div class="test-item">
+                    <span>${d.data().title}</span> 
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="startTest('${d.id}')" style="background:var(--green); border:none; color:white; padding:5px; border-radius:5px; font-size:10px;">PLAY</button>
+                        <button onclick="createBattle('${d.id}')" style="background:var(--red); border:none; color:white; padding:5px; border-radius:5px; font-size:10px;">BATTLE</button>
+                    </div>
+                </div>`;
+            }
+        });
     }
 
     window.openSubject = async (subKey, title) => {
-        window.currentSubject = title; showScreen('screen-tests');
+        window.currentSubject = title; 
+        document.getElementById('backFromTests').setAttribute('onclick', "showScreen('screen-dashboard')");
+        document.getElementById('backFromBattleLobby').setAttribute('onclick', "showScreen('screen-dashboard')");
+        document.getElementById('battleCreationRedirect').setAttribute('onclick', "showScreen('screen-dashboard')");
+        showScreen('screen-tests');
         const qSnap = await getDocs(collection(db, "quizzes"));
         const cont = document.getElementById('testListContainer');
         cont.innerHTML = `<h3 style="text-align:center;">${title}</h3>`;
-        let count = 1; // Numbering Start
-        qSnap.forEach(d => { 
+        let count = 1;
+        qSnap.forEach(d => {
             if(d.data().class === window.player.class && d.data().subject === subKey) {
-                cont.innerHTML += `<div class="test-item" onclick="startTest('${d.id}')">${count}. ${d.data().title} <span>START ▶</span></div>`;
-                count++;
+                const item = document.createElement('div');
+                item.className = "test-item";
+                item.innerHTML = `<span>${count}. ${d.data().title}</span> 
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="startTest('${d.id}')" style="background:var(--green); border:none; color:white; padding:5px; border-radius:5px;">PLAY</button>
+                        <button onclick="createBattle('${d.id}')" style="background:var(--red); border:none; color:white; padding:5px; border-radius:5px;">BATTLE</button>
+                    </div>`;
+                cont.appendChild(item); count++;
             }
+        });
+    };
+
+    window.createBattle = async (quizID) => {
+        const randomNumId = Math.floor(100000 + Math.random() * 900000);
+        window.battleID = randomNumId.toString();
+        await setDoc(doc(db, "live_battles", window.battleID), {
+            quizID: quizID, challengerName: window.player.name, challengerScore: -1, opponentName: "Waiting...", opponentScore: -1, status: "waiting"
+        });
+        alert(`Battle Created! Room ID: ${window.battleID}`);
+        window.open(`https://wa.me/?text=Mujhse 1vs1 Battle khelo! Room ID: ${window.battleID}`);
+        listenToBattle();
+    };
+
+    window.joinBattle = async () => {
+        const id = document.getElementById('battleJoinInput').value.trim();
+        if(!id) return alert("ID daliye!");
+        const bSnap = await getDoc(doc(db, "live_battles", id));
+        if(bSnap.exists()) {
+            window.battleID = id;
+            await setDoc(doc(db, "live_battles", id), { opponentName: window.player.name, status: "active" }, { merge: true });
+            startTest(bSnap.data().quizID, true);
+        } else { alert("Room ID galat hai!"); }
+    };
+
+    function listenToBattle() {
+        onSnapshot(doc(db, "live_battles", window.battleID), (doc) => {
+            const data = doc.data(); if(!data) return;
+            if(data.status === "active" && !window.isBattle) startTest(data.quizID, true);
+            if(data.challengerScore !== -1 && data.opponentScore !== -1) showBattleResult(data);
         });
     }
 
-    window.startTest = async (id) => {
+    window.startTest = async (id, battle = false) => {
+        window.isBattle = battle;
         const s = await getDoc(doc(db, "quizzes", id));
         window.currentQuiz = s.data().questions;
         window.currentTestTitle = s.data().title;
-        window.userAnswers = new Array(window.currentQuiz.length).fill(null);
-        window.currQIndex = 0; showScreen('screen-quiz'); loadQ();
-    }
+        window.currQIndex = 0; window.lives = 3; window.userAnswers = [];
+        showScreen('screen-quiz'); loadQ();
+    };
 
     function loadQ() {
         const q = window.currentQuiz[window.currQIndex];
-        document.getElementById('qCounter').innerHTML = `<span class="q-number">Question ${window.currQIndex+1} / ${window.currentQuiz.length}</span>`;
+        document.getElementById('qCounter').innerText = `Q: ${window.currQIndex+1}/${window.currentQuiz.length}`;
         document.getElementById('qText').innerText = q.q;
+        const img = document.getElementById('qImage');
+        if(q.img) { img.src = q.img; img.style.display = "block"; } else { img.style.display = "none"; }
         const box = document.getElementById('optionsBox'); box.innerHTML = "";
         q.opts.forEach((o, i) => {
-            const b = document.createElement('button'); b.className="opt-btn"; b.innerText=o;
-            b.onclick=()=>{window.userAnswers[window.currQIndex]=i; window.currQIndex++; if(window.currQIndex < window.currentQuiz.length) loadQ(); else finish();};
-            box.appendChild(b);
+            const b = document.createElement('button'); b.className = "opt-btn"; b.innerText = o;
+            b.onclick = () => checkAns(i, b); box.appendChild(b);
         });
     }
 
-    function finish() {
-        let sc = 0;
-        window.currentQuiz.forEach((q, i) => { if(window.userAnswers[i] === q.a) sc++; });
-        document.getElementById('finalScore').innerText = `${sc}/${window.currentQuiz.length}`;
-        document.getElementById('resStudentName').innerText = window.player.name.toUpperCase();
+    function checkAns(idx, btn) {
+        const correct = window.currentQuiz[window.currQIndex].a;
+        window.userAnswers[window.currQIndex] = idx;
+        if(idx === correct) { btn.style.background = "var(--green)"; btn.style.color="white"; }
+        else {
+            btn.style.background = "var(--red)"; btn.style.color="white";
+            window.lives--; updateLives();
+            if(window.currentQuiz[window.currQIndex].audio) new Audio(window.currentQuiz[window.currQIndex].audio).play();
+        }
+        setTimeout(() => {
+            window.currQIndex++;
+            if(window.currQIndex < window.currentQuiz.length) loadQ(); else finish();
+        }, 800);
+    }
+
+    window.use5050 = () => {
+        const correct = window.currentQuiz[window.currQIndex].a;
+        const btns = document.querySelectorAll('.opt-btn');
+        let hidden = 0;
+        btns.forEach((b, i) => { if(i !== correct && hidden < 2) { b.style.display = "none"; hidden++; } });
+        document.getElementById('ll-50').classList.add('used');
+    };
+
+    async function finish() {
+        let score = 0;
+        window.currentQuiz.forEach((q, i) => { if(window.userAnswers[i] === q.a) score++; });
+        document.getElementById('finalScore').innerText = `${score}/${window.currentQuiz.length}`;
+        if(window.isBattle) {
+            const bRef = doc(db, "live_battles", window.battleID);
+            const bSnap = await getDoc(bRef);
+            if(bSnap.data().challengerName === window.player.name) await setDoc(bRef, { challengerScore: score }, { merge: true });
+            else await setDoc(bRef, { opponentScore: score }, { merge: true });
+            document.getElementById('resBattleInfo').innerText = "Waiting for Opponent...";
+            listenToBattle(); 
+        }
+        renderSolutions();
         showScreen('screen-result');
-        const solCont = document.getElementById('solutionContainer'); solCont.innerHTML = "";
+    }
+
+    function showBattleResult(data) {
+        let opponent = data.challengerName === window.player.name ? data.opponentName : data.challengerName;
+        let oppScore = data.challengerName === window.player.name ? data.opponentScore : data.challengerScore;
+        let myScore = data.challengerName === window.player.name ? data.challengerScore : data.opponentScore;
+        let winStatus = myScore > oppScore ? "🏆 YOU WON!" : (myScore === oppScore ? "🤝 DRAW!" : "❌ YOU LOST!");
+        document.getElementById('resBattleInfo').innerHTML = `${winStatus}<br><small>${opponent} Score: ${oppScore}</small>`;
+    }
+
+    function renderSolutions() {
+        const sol = document.getElementById('solutionContainer'); sol.innerHTML = "";
         window.currentQuiz.forEach((q, i) => {
-            const isC = window.userAnswers[i] === q.a;
-            solCont.innerHTML += `<div class="sol-item" style="border-left:5px solid ${isC?'#00e676':'#ff1744'}">
-                <b>Q${i+1}: ${q.q}</b><br>
-                <span style="color:${isC?'#00e676':'#ff1744'}">👤 Your: ${window.userAnswers[i]!==null?q.opts[window.userAnswers[i]]:'Skipped'}</span><br>
-                <span style="color:#00e676">✅ Correct: ${q.opts[q.a]}</span><br>
-                <div style="margin-top:8px; padding:10px; background:#e3f2fd; color:#333; border-radius:8px;"><b>💡 Solution:</b> ${q.sol || 'Self-explainable'}</div>
-            </div>`;
+            const userChoiceIdx = window.userAnswers[i]; const correctIdx = q.a; const isCorrect = userChoiceIdx === correctIdx;
+            sol.innerHTML += `<div class="premium-sol-card"><span class="sol-q-no">Question ${i+1}</span><span class="sol-text">${q.q}</span>
+                    <div class="ans-badge ${isCorrect ? 'correct-choice' : 'user-choice'}"><span>${isCorrect ? '✅' : '❌'} Aapka Jawab: <b>${userChoiceIdx !== null ? q.opts[userChoiceIdx] : 'Nahi Diya'}</b></span></div>
+                    ${!isCorrect ? `<div class="ans-badge correct-choice"><span>✅ Sahi Jawab: <b>${q.opts[correctIdx]}</b></span></div>` : ''}
+                    <div class="explanation-box"><b>💡 Explanation:</b> ${q.sol || 'Self-explainable'}</div></div>`;
         });
     }
 
     window.downloadStatusCard = () => {
         document.getElementById('cardStudentName').innerText = window.player.name.toUpperCase();
         document.getElementById('cardScore').innerText = document.getElementById('finalScore').innerText;
-        document.getElementById('cardSubject').innerText = window.currentSubject;
+        document.getElementById('cardChapter').innerText = "TEST: " + window.currentTestTitle;
+        document.getElementById('cardSubject').innerText = "SUBJECT: " + window.currentSubject;
         const card = document.getElementById('statusCardBox'); card.style.position = "static"; card.style.left = "0";
-        html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL(); link.download = `Result.png`;
-            link.click(); card.style.position = "absolute"; card.style.left = "-9999px";
+        html2canvas(card, { scale: 2 }).then(canvas => {
+            const link = document.createElement('a'); link.href = canvas.toDataURL(); link.download = `Certificate.png`; link.click();
+            card.style.position = "absolute"; card.style.left = "-9999px";
         });
-    }
+    };
 
+    function updateLives() { document.getElementById('livesBox').innerText = "❤️".repeat(Math.max(0, window.lives)); }
+    window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.shareOnWhatsApp = () => {
-        const msg = `*📊 QUIZ RESULT*\n*Student:* ${window.player.name}\n*Subject:* ${window.currentSubject}\n*Topic:* ${window.currentTestTitle}\n*Score:* ${document.getElementById('finalScore').innerText}\n\n_Tech By Ashish Sir_`;
+        const msg = `*SHRI GAYATRI SANSKAAR PUBLIC SCHOOL*\n*📊 QUIZ RESULT REPORT*\n\n*Student:* ${window.player.name}\n*Score:* ${document.getElementById('finalScore').innerText}\n*Test:* ${window.currentTestTitle}\n*Subject:* ${window.currentSubject}\n\n*ADMISSION OPEN*\n*Tech By Ashish Sir*`;
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-    }
-    window.showScreen = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    };
 </script>
 </body>
 </html>
